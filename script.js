@@ -129,3 +129,22 @@ if (contactForm && formNote) {
   });
 }
 
+// Bloqueo de inspección básica: clic derecho y combinaciones comunes de teclas
+document.addEventListener('contextmenu', function (e) {
+  e.preventDefault();
+});
+
+document.addEventListener('keydown', function (e) {
+  const key = e.key.toUpperCase();
+  if (
+    key === 'F12' ||
+    (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(key)) ||
+    (e.ctrlKey && key === 'U') ||
+    (e.ctrlKey && key === 'S') ||
+    (e.ctrlKey && key === 'A')
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+});
+
