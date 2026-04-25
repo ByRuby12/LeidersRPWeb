@@ -32,8 +32,8 @@
   <meta property="og:title" content="LeidersRP | Servidor Roleplay GTA V PS4 y PS5">
   <meta property="og:description"
     content="Servidor de roleplay para GTA V en PS4 y PS5. Sistema de trabajos, whitelist, economía realista y comunidad activa.">
-  <meta property="og:image" content="https://byruby12.github.io/LeidersRP/imagenes/logo.jpg">
-  <meta property="og:url" content="https://byruby12.github.io/LeidersRP/">
+  <meta property="og:image" content="https://byruby12.github.io/LeidersRPWeb/imagenes/logo.jpg">
+  <meta property="og:url" content="https://byruby12.github.io/LeidersRPWeb/">
   <meta property="og:site_name" content="LeidersRP">
   <meta property="og:locale" content="es_ES">
 
@@ -41,14 +41,14 @@
   <meta name="twitter:title" content="LeidersRP | Servidor Roleplay GTA V PS4 y PS5">
   <meta name="twitter:description"
     content="Únete al mejor servidor de roleplay en consola. GTA V RP para PS4 y PS5 con whitelist y comunidad activa.">
-  <meta name="twitter:image" content="https://byruby12.github.io/LeidersRP/imagenes/logo.png">
+  <meta name="twitter:image" content="https://byruby12.github.io/LeidersRPWeb/imagenes/logo.png">
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "LeidersRP",
-    "url": "https://byruby12.github.io/LeidersRP/",
+    "url": "https://byruby12.github.io/LeidersRPWeb/",
     "description": "Servidor de roleplay para GTA V en PS4 y PS5 donde los jugadores crean personajes y viven experiencias realistas.",
     "genre": "Roleplay",
     "gamePlatform": ["PlayStation 4", "PlayStation 5"],
@@ -64,7 +64,7 @@
 <body>
   <header class="site-header">
     <div class="container header-inner">
-      <a href="/" class="brand" data-link>
+      <a href="#/inicio" class="brand" data-link>
         <img src="imagenes/logo.png" alt="LeidersRP logo" class="brand-logo">
         LeidersRP
       </a>
@@ -74,20 +74,20 @@
         <span></span>
       </button>
       <nav class="site-nav" id="siteNav">
-        <a href="/" data-link>Inicio</a>
-        <a href="/normativas" data-link>Normativas</a>
-        <a href="/unirse" data-link>Unirse</a>
-        <a href="/trabajos" data-link>Trabajos</a>
-        <a href="/comandos" data-link>Comandos</a>
-        <a href="/staff" data-link>Staff</a>
-        <a href="/redes" data-link>Redes</a>
-        <a href="/contacto" data-link>Contacto</a>
+        <a href="#/inicio" data-link>Inicio</a>
+        <a href="#/normativas" data-link>Normativas</a>
+        <a href="#/unirse" data-link>Unirse</a>
+        <a href="#/trabajos" data-link>Trabajos</a>
+        <a href="#/comandos" data-link>Comandos</a>
+        <a href="#/staff" data-link>Staff</a>
+        <a href="#/redes" data-link>Redes</a>
+        <a href="#/contacto" data-link>Contacto</a>
       </nav>
     </div>
   </header>
 
   <main id="app">
-    <section class="page page-home active" data-route="">
+    <section class="page page-home active" data-route="inicio">
       <section class="section discord-home">
         <div class="container split-grid">
           <div class="discord-copy">
@@ -124,9 +124,9 @@
               </div>
             </div>
             <div class="quick-links">
-              <a class="btn btn-primary" href="/unirse" data-link>Cómo unirse</a>
-              <a class="btn btn-secondary" href="/normativas" data-link>Normativas</a>
-              <a class="btn btn-secondary" href="/comandos" data-link>Comandos del bot</a>
+              <a class="btn btn-primary" href="#/unirse" data-link>Cómo unirse</a>
+              <a class="btn btn-secondary" href="#/normativas" data-link>Normativas</a>
+              <a class="btn btn-secondary" href="#/comandos" data-link>Comandos del bot</a>
             </div>
           </div>
           <div class="discord-widget-card">
@@ -1108,7 +1108,7 @@
         <span class="eyebrow">404</span>
         <h2>Página no encontrada</h2>
         <p>La ruta solicitada no existe. Usa el menú para navegar entre las secciones del servidor.</p>
-        <a class="btn btn-primary" href="/" data-link>Volver al inicio</a>
+        <a class="btn btn-primary" href="#/inicio" data-link>Volver al inicio</a>
       </div>
     </section>
   </main>

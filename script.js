@@ -19,48 +19,38 @@ window.addEventListener('resize', () => {
 
 function normalizeRoute(route) {
   if (!route) return '';
-  return route.replace(/^\/|\/$/g, '');
+  return route.replace(/^#?\/?|\/$/g, '').toLowerCase();
 }
 
 function getCurrentRoute() {
-  if (window.location.protocol === 'file:') {
-    const hashRoute = normalizeRoute(window.location.hash.replace('#', ''));
-    return hashRoute || '';
-  }
-
-  let route = normalizeRoute(window.location.pathname);
-  if (route.endsWith('index.html')) {
-    route = '';
-  }
-  return route;
+  const hashRoute = normalizeRoute(window.location.hash);
+  return hashRoute || 'inicio';
 }
 
 function setActivePage(route) {
-  let targetRoute = route;
+  const targetRoute = route || 'inicio';
   const match = Array.from(pages).find((page) => page.dataset.route === targetRoute);
-  if (!match) {
-    targetRoute = '404';
-  }
+  const activeRoute = match ? targetRoute : '404';
 
   pages.forEach((page) => {
-    page.classList.toggle('active', page.dataset.route === targetRoute);
+    page.classList.toggle('active', page.dataset.route === activeRoute);
   });
 
   navLinks.forEach((link) => {
-    const linkRoute = normalizeRoute(link.getAttribute('href'));
-    link.classList.toggle('active', linkRoute === targetRoute);
+    const linkRoute = normalizeRoute(link.getAttribute('href') || '');
+    const normalizedLink = linkRoute || 'inicio';
+    link.classList.toggle('active', normalizedLink === activeRoute);
   });
 }
 
 function navigateTo(url) {
-  const route = normalizeRoute(url.replace(location.origin, ''));
-  if (window.location.protocol === 'file:') {
-    window.location.hash = route || '#';
-    setActivePage(route);
-    return;
+  const route = normalizeRoute(url);
+  const targetRoute = route || 'inicio';
+  const hashRoute = targetRoute === 'inicio' ? '#/inicio' : `#/${targetRoute}`;
+  if (window.location.hash !== hashRoute) {
+    window.location.hash = hashRoute;
   }
-  history.pushState(null, null, route ? `/${route}` : '/');
-  setActivePage(route);
+  setActivePage(targetRoute);
   siteNav.classList.remove('open');
 }
 
@@ -116,7 +106,7 @@ function initJoinCarousel() {
   updateStep(0);
 }
 
-window.addEventListener('popstate', router);
+window.addEventListener('hashchange', router);
 window.addEventListener('DOMContentLoaded', () => {
   router();
   initJoinCarousel();
