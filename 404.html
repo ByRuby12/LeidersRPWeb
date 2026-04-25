@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>LeidersRP - Redirigiendo...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <p>Redirigiendo...</p>
+  <script>
+    (function() {
+      var pathname = window.location.pathname.replace(/\/$/, '');
+      var segments = pathname.split('/').filter(Boolean);
+      if (segments.length === 0) {
+        window.location.replace('/');
+        return;
+      }
+
+      var route = segments.pop();
+      var base = '/' + segments.join('/');
+      if (base === '/') base = '';
+      var target = base + '/#' + encodeURIComponent(route);
+      window.location.replace(target);
+    })();
+  </script>
+</body>
+</html>

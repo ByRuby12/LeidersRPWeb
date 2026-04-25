@@ -1,70 +1,153 @@
 const navToggle = document.getElementById('navToggle');
 const siteNav = document.getElementById('siteNav');
 const navLinks = document.querySelectorAll('[data-link]');
-const pages = document.querySelectorAll('.page');
-const contactForm = document.getElementById('contactForm');
-const formNote = document.getElementById('formNote');
+const app = document.getElementById('app');
 
-navToggle.addEventListener('click', () => {
-  siteNav.classList.toggle('open');
-  const expanded = siteNav.classList.contains('open');
-  navToggle.setAttribute('aria-expanded', expanded);
-});
+const currentScript = document.currentScript || document.querySelector('script[src$="script.js"]');
+const basePath = (() => {
+  const scriptUrl = currentScript ? new URL(currentScript.src, window.location.origin) : new URL(window.location.href);
+  return scriptUrl.pathname.replace(/\/script\.js$/, '').replace(/\/$/, '');
+})();
 
-window.addEventListener('resize', () => {
-  if (window.innerWidth > 780) {
-    siteNav.classList.remove('open');
+let routes = [];
+const viewCache = new Map();
+
+async function fetchJson(path) {
+  const response = await fetch(path, { cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error(`Error cargando ${path}: ${response.status}`);
   }
-});
+  return await response.json();
+}
 
 function normalizeRoute(route) {
   if (!route) return '';
-  return route.replace(/^#?\/?|\/$/g, '').toLowerCase();
-}
-
-function getCurrentRoute() {
-  const hashRoute = normalizeRoute(window.location.hash);
-  return hashRoute || 'inicio';
-}
-
-function setActivePage(route) {
-  const targetRoute = route || 'inicio';
-  const match = Array.from(pages).find((page) => page.dataset.route === targetRoute);
-  const activeRoute = match ? targetRoute : '404';
-
-  pages.forEach((page) => {
-    page.classList.toggle('active', page.dataset.route === activeRoute);
-  });
-
-  navLinks.forEach((link) => {
-    const linkRoute = normalizeRoute(link.getAttribute('href') || '');
-    const normalizedLink = linkRoute || 'inicio';
-    link.classList.toggle('active', normalizedLink === activeRoute);
-  });
-}
-
-function navigateTo(url) {
-  const route = normalizeRoute(url);
-  const targetRoute = route || 'inicio';
-  const hashRoute = targetRoute === 'inicio' ? '#/inicio' : `#/${targetRoute}`;
-  if (window.location.hash !== hashRoute) {
-    window.location.hash = hashRoute;
+  if (typeof route !== 'string') {
+    return '';
   }
-  setActivePage(targetRoute);
+
+  let path = route;
+  if (route.startsWith('#')) {
+    path = route.slice(1);
+    return path.replace(/^\/+|\/+$/g, '').toLowerCase();
+  }
+
+  try {
+    const url = new URL(route, window.location.origin);
+    path = url.pathname;
+  } catch (error) {
+    // Ignore invalid URL and keep raw route string.
+  }
+
+  if (basePath && path.startsWith(basePath)) {
+    path = path.slice(basePath.length);
+  }
+
+  return path.replace(/^\/+|\/+$/g, '').toLowerCase();
+}
+
+function makeRoutePath(route) {
+  const normalizedRoute = normalizeRoute(route) || 'inicio';
+  return `#${normalizedRoute}`;
+}
+
+function updateLinkPaths() {
+  document.querySelectorAll('[data-link][data-route]').forEach((link) => {
+    const route = normalizeRoute(link.dataset.route || '');
+    if (!route) return;
+    link.setAttribute('href', makeRoutePath(route));
+  });
+}
+
+async function ensureRoutes() {
+  if (routes.length === 0) {
+    routes = await fetchJson('data/routes.json');
+  }
+}
+
+function getRouteConfig(route) {
+  const targetRoute = normalizeRoute(route) || 'inicio';
+  const match = routes.find((entry) => entry.route === targetRoute);
+  return match || routes.find((entry) => entry.route === '404');
+}
+
+async function loadView(route) {
+  await ensureRoutes();
+  const config = getRouteConfig(route);
+  if (!config) {
+    app.innerHTML = '<section class="page" data-route="404"><div class="container section-header"><span class="eyebrow">404</span><h2>Página no encontrada</h2><p>La ruta solicitada no existe.</p><a class="btn btn-primary" href="#" data-link data-route="inicio">Volver al inicio</a></div></section>';
+    updateLinkPaths();
+    updateNavActive('404');
+    return;
+  }
+
+  if (!viewCache.has(config.route)) {
+    const response = await fetch(`views/${config.file}`, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`Error cargando vista ${config.file}`);
+    }
+    const html = await response.text();
+    viewCache.set(config.route, html);
+  }
+
+  app.innerHTML = viewCache.get(config.route);
+  updateLinkPaths();
+  const page = app.querySelector('.page');
+  if (page) {
+    page.classList.add('active');
+  }
+  updateNavActive(config.route);
+  const targetPath = makeRoutePath(config.route);
+  const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  if (currentUrl !== targetPath) {
+    history.replaceState(null, '', targetPath);
+  }
+  initPageFeatures(config.route);
+}
+
+function navigateTo(route) {
+  const targetRoute = normalizeRoute(route) || 'inicio';
+  const path = makeRoutePath(targetRoute);
+
+  if (window.location.hash !== path) {
+    window.location.hash = path;
+    siteNav.classList.remove('open');
+    return;
+  }
+
+  loadView(targetRoute).catch((error) => console.error(error));
   siteNav.classList.remove('open');
 }
 
-function router() {
-  const route = getCurrentRoute();
-  setActivePage(route);
+function getCurrentRoute() {
+  const hash = window.location.hash;
+  if (hash) {
+    const normalizedHash = normalizeRoute(hash);
+    if (normalizedHash) {
+      return normalizedHash;
+    }
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const routeParam = params.get('route');
+  if (routeParam) {
+    return normalizeRoute(routeParam) || 'inicio';
+  }
+
+  let pathname = window.location.pathname;
+  if (basePath && pathname.startsWith(basePath)) {
+    pathname = pathname.slice(basePath.length);
+  }
+  return normalizeRoute(pathname) || 'inicio';
 }
 
-document.addEventListener('click', (event) => {
-  const link = event.target.closest('[data-link]');
-  if (!link) return;
-  event.preventDefault();
-  navigateTo(link.getAttribute('href'));
-});
+function updateNavActive(route) {
+  navLinks.forEach((link) => {
+    const linkRoute = normalizeRoute(link.dataset.route || link.getAttribute('href') || '');
+    const normalizedLink = linkRoute || 'inicio';
+    link.classList.toggle('active', normalizedLink === route);
+  });
+}
 
 function initJoinCarousel() {
   const carousel = document.getElementById('joinCarousel');
@@ -75,8 +158,8 @@ function initJoinCarousel() {
   const pageIndicator = carousel.querySelector('.carousel-page');
   const panels = Array.from(carousel.querySelectorAll('.step-text'));
   if (!prevButton || !nextButton || panels.length === 0) return;
-  let currentIndex = 0;
 
+  let currentIndex = 0;
   function updateStep(index) {
     if (index < 0) {
       currentIndex = panels.length - 1;
@@ -95,24 +178,136 @@ function initJoinCarousel() {
     }
   }
 
-  prevButton.addEventListener('click', () => {
-    updateStep(currentIndex - 1);
-  });
-
-  nextButton.addEventListener('click', () => {
-    updateStep(currentIndex + 1);
-  });
-
+  prevButton.addEventListener('click', () => updateStep(currentIndex - 1));
+  nextButton.addEventListener('click', () => updateStep(currentIndex + 1));
   updateStep(0);
 }
 
-window.addEventListener('hashchange', router);
-window.addEventListener('DOMContentLoaded', () => {
-  router();
-  initJoinCarousel();
-});
+async function initNewsPagination() {
+  const newsCardsContainer = document.getElementById('newsCards');
+  if (!newsCardsContainer) return;
 
-if (contactForm && formNote) {
+  const newsPagination = document.querySelector('.news-pagination');
+  const prevButton = document.querySelector('.news-prev');
+  const nextButton = document.querySelector('.news-next');
+  if (!prevButton || !nextButton || !newsPagination) return;
+
+  const newsItems = await fetchJson('data/news.json');
+  const pageSize = 2;
+  let currentPage = 0;
+  const pageCount = Math.ceil(newsItems.length / pageSize);
+
+  if (newsItems.length <= 2) {
+    newsPagination.style.display = 'none';
+  }
+
+  function renderPage() {
+    const currentItems = newsItems.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+    newsCardsContainer.innerHTML = currentItems
+      .map((item) => `
+        <article class="news-card">
+          <img src="${item.image}" alt="${item.alt}">
+          <div class="news-card-body">
+            <span class="eyebrow">${item.date}</span>
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+          </div>
+        </article>
+      `)
+      .join('');
+
+    prevButton.disabled = currentPage === 0;
+    nextButton.disabled = currentPage === pageCount - 1;
+  }
+
+  prevButton.addEventListener('click', () => {
+    currentPage = Math.max(0, currentPage - 1);
+    renderPage();
+  });
+
+  nextButton.addEventListener('click', () => {
+    currentPage = Math.min(pageCount - 1, currentPage + 1);
+    renderPage();
+  });
+
+  renderPage();
+}
+
+async function initNormativas() {
+  const norms = await fetchJson('data/normativas.json');
+  const container = document.getElementById('normsGrid');
+  if (!container) return;
+  container.innerHTML = norms
+    .map((item) => `
+      <article class="norm-card">
+        <div>
+          <h3>${item.title}</h3>
+          <p>${item.description}</p>
+        </div>
+        <div class="norm-actions">
+          ${item.viewUrl && item.viewUrl !== '#' ? `<a class="btn btn-primary" href="${item.viewUrl}" target="_blank" rel="noreferrer">Ver</a>` : ''}
+          ${item.downloadUrl && item.downloadUrl !== '#' ? `<a class="btn btn-secondary" href="${item.downloadUrl}" target="_blank" rel="noreferrer">Descargar</a>` : ''}
+        </div>
+      </article>
+    `)
+    .join('');
+}
+
+async function initTrabajos() {
+  const jobs = await fetchJson('data/trabajos.json');
+  const container = document.getElementById('jobsGrid');
+  if (!container) return;
+  container.innerHTML = jobs
+    .map((job) => `
+      <article class="feature-card">
+        <h3>${job.title}</h3>
+        <p>${job.description}</p>
+        <a class="btn btn-secondary" href="${job.ctaUrl}" target="_blank" rel="noreferrer">${job.ctaLabel}</a>
+      </article>
+    `)
+    .join('');
+}
+
+async function initCommands() {
+  const commands = await fetchJson('data/comandos.json');
+  const container = document.getElementById('commandsGrid');
+  if (!container) return;
+  container.innerHTML = commands
+    .map((cmd) => `
+      <article class="command-card">
+        <h4>${cmd.command}</h4>
+        ${cmd.description ? `<p>${cmd.description}${cmd.example ? `<br>➜ Ejemplo: <strong>${cmd.example}</strong>.` : ''}</p>` : ''}
+      </article>
+    `)
+    .join('');
+}
+
+async function initStaff() {
+  const members = await fetchJson('data/staff.json');
+  const container = document.getElementById('staffGrid');
+  if (!container) return;
+  container.innerHTML = members
+    .map((member) => `
+      <article class="team-card">
+        <div class="team-header">
+          <img src="${member.avatar}" alt="${member.name}" class="team-avatar">
+          <div>
+            <h4>${member.name}</h4>
+            <p class="team-role">${member.role}</p>
+            <p class="team-note">${member.note}</p>
+          </div>
+        </div>
+        <div class="team-rating">${'⭐'.repeat(member.rating || 5)}</div>
+      </article>
+    `)
+    .join('');
+}
+
+function initContactForm() {
+  const contactForm = document.getElementById('contactForm');
+  const formNote = document.getElementById('formNote');
+  if (!contactForm || !formNote) return;
+
   contactForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const name = event.target.name.value.trim();
@@ -129,7 +324,65 @@ if (contactForm && formNote) {
   });
 }
 
-// Bloqueo de inspección básica: clic derecho y combinaciones comunes de teclas
+function initPageFeatures(route) {
+  if (route === 'unirse') {
+    initJoinCarousel();
+  }
+
+  if (route === 'noticias') {
+    initNewsPagination().catch((error) => console.error(error));
+  }
+
+  if (route === 'normativas') {
+    initNormativas().catch((error) => console.error(error));
+  }
+
+  if (route === 'trabajos') {
+    initTrabajos().catch((error) => console.error(error));
+  }
+
+  if (route === 'comandos') {
+    initCommands().catch((error) => console.error(error));
+  }
+
+  if (route === 'staff') {
+    initStaff().catch((error) => console.error(error));
+  }
+
+  initContactForm();
+}
+
+function router() {
+  const route = getCurrentRoute();
+  loadView(route).catch((error) => console.error(error));
+}
+
+navToggle.addEventListener('click', () => {
+  siteNav.classList.toggle('open');
+  const expanded = siteNav.classList.contains('open');
+  navToggle.setAttribute('aria-expanded', expanded);
+});
+
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 780) {
+    siteNav.classList.remove('open');
+  }
+});
+
+window.addEventListener('hashchange', router);
+window.addEventListener('DOMContentLoaded', () => {
+  updateLinkPaths();
+  router();
+});
+
+document.addEventListener('click', (event) => {
+  const link = event.target.closest('[data-link]');
+  if (!link) return;
+
+  event.preventDefault();
+  navigateTo(link.dataset.route || link.getAttribute('href'));
+});
+
 document.addEventListener('contextmenu', function (e) {
   e.preventDefault();
 });

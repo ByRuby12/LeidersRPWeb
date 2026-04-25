@@ -1,0 +1,51 @@
+[
+  {
+    "name": "ByRuby12",
+    "role": "Fundador del servidor",
+    "note": "Estamos aquí para ayudarte.",
+    "avatar": "imagenes/fundador.png",
+    "rating": 5
+  },
+  {
+    "name": "Javiescu",
+    "role": "Soporte LVL1",
+    "note": "Aquí para ayudarte cuando lo necesites.",
+    "avatar": "imagenes/javiescu.png",
+    "rating": 5
+  },
+  {
+    "name": "Axelbm_",
+    "role": "Soporte LVL1",
+    "note": "Listo para resolver tus dudas en el servidor.",
+    "avatar": "imagenes/axel.png",
+    "rating": 5
+  },
+  {
+    "name": "cristian_73828",
+    "role": "Soporte LVL2",
+    "note": "Aquí para que tu experiencia sea más segura.",
+    "avatar": "imagenes/cristian.png",
+    "rating": 5
+  },
+  {
+    "name": "tunene_",
+    "role": "Soporte LVL1",
+    "note": "Siempre atento para ayudarte en el chat.",
+    "avatar": "imagenes/tunene.png",
+    "rating": 5
+  },
+  {
+    "name": "m.alpha",
+    "role": "Soporte LVL1",
+    "note": "Listo para ayudarte con cualquier problema.",
+    "avatar": "imagenes/alpha.png",
+    "rating": 5
+  },
+  {
+    "name": "amadorcillo",
+    "role": "Soporte LVL1",
+    "note": "Cuidamos la comunidad y tu experiencia.",
+    "avatar": "imagenes/amadorcillo.png",
+    "rating": 5
+  }
+]

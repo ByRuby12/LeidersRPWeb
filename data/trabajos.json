@@ -1,0 +1,56 @@
+[
+  {
+    "title": "Policía",
+    "description": "Vigila la ciudad, atiende emergencias y aplica las normas del servidor. Solo se accede por postulación en el canal de ticket.",
+    "ctaLabel": "Postularme",
+    "ctaUrl": "https://discord.com/channels/793114208904151141/888122319191539753"
+  },
+  {
+    "title": "EMS",
+    "description": "Atiende accidentes, salva vidas y coordina rescates médicos con el equipo de emergencias.",
+    "ctaLabel": "Solicitar trabajo",
+    "ctaUrl": "https://discord.com/channels/793114208904151141/888122416092561429"
+  },
+  {
+    "title": "Mecánico",
+    "description": "Repara autos, ajusta vehículos y ayuda a los jugadores a volver a la carretera.",
+    "ctaLabel": "Solicitar trabajo",
+    "ctaUrl": "https://discord.com/channels/793114208904151141/888122416092561429"
+  },
+  {
+    "title": "Basurero",
+    "description": "Gestiona la recolección de basura, limpia las calles y mantiene la ciudad ordenada.",
+    "ctaLabel": "Solicitar trabajo",
+    "ctaUrl": "https://discord.com/channels/793114208904151141/888122416092561429"
+  },
+  {
+    "title": "Camionero",
+    "description": "Transporta cargas por la ciudad y fortalece la economía con rutas de logística y reparto.",
+    "ctaLabel": "Solicitar trabajo",
+    "ctaUrl": "https://discord.com/channels/793114208904151141/888122416092561429"
+  },
+  {
+    "title": "Bombero",
+    "description": "Apaga incendios, atiende rescates y protege a la comunidad en situaciones de riesgo.",
+    "ctaLabel": "Solicitar trabajo",
+    "ctaUrl": "https://discord.com/channels/793114208904151141/888122416092561429"
+  },
+  {
+    "title": "Electricista",
+    "description": "Repara el suministro eléctrico, arregla averías y mantiene la energía funcionando en el servidor.",
+    "ctaLabel": "Solicitar trabajo",
+    "ctaUrl": "https://discord.com/channels/793114208904151141/888122416092561429"
+  },
+  {
+    "title": "Televisión",
+    "description": "Produce contenido, cubre eventos y transmite noticias dentro del mundo de juego.",
+    "ctaLabel": "Solicitar trabajo",
+    "ctaUrl": "https://discord.com/channels/793114208904151141/888122416092561429"
+  },
+  {
+    "title": "Taxista",
+    "description": "Ofrece transporte seguro a los jugadores, recorre la ciudad y gana con cada servicio.",
+    "ctaLabel": "Solicitar trabajo",
+    "ctaUrl": "https://discord.com/channels/793114208904151141/888122416092561429"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {"route": "inicio", "file": "home.html", "title": "Inicio"},
+  {"route": "normativas", "file": "normativas.html", "title": "Normativas"},
+  {"route": "noticias", "file": "noticias.html", "title": "Noticias"},
+  {"route": "unirse", "file": "unirse.html", "title": "Cómo unirse"},
+  {"route": "trabajos", "file": "trabajos.html", "title": "Trabajos"},
+  {"route": "comandos", "file": "comandos.html", "title": "Comandos"},
+  {"route": "staff", "file": "staff.html", "title": "Staff"},
+  {"route": "redes", "file": "redes.html", "title": "Redes"},
+  {"route": "contacto", "file": "contacto.html", "title": "Contacto"},
+  {"route": "404", "file": "404.html", "title": "Página no encontrada"}
+]
