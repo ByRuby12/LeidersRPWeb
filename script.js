@@ -112,11 +112,13 @@ function navigateTo(route) {
   if (window.location.hash !== path) {
     window.location.hash = path;
     siteNav.classList.remove('open');
+    document.body.classList.remove('nav-open');
     return;
   }
 
   loadView(targetRoute).catch((error) => console.error(error));
   siteNav.classList.remove('open');
+  document.body.classList.remove('nav-open');
 }
 
 function getCurrentRoute() {
@@ -236,50 +238,170 @@ async function initNewsPagination() {
 async function initNormativas() {
   const norms = await fetchJson('data/normativas.json');
   const container = document.getElementById('normsGrid');
+  const pagination = document.querySelector('.norm-pagination');
   if (!container) return;
-  container.innerHTML = norms
-    .map((item) => `
-      <article class="norm-card">
-        <div>
-          <h3>${item.title}</h3>
-          <p>${item.description}</p>
-        </div>
-        <div class="norm-actions">
-          ${item.viewUrl && item.viewUrl !== '#' ? `<a class="btn btn-primary" href="${item.viewUrl}" target="_blank" rel="noreferrer">Ver</a>` : ''}
-          ${item.downloadUrl && item.downloadUrl !== '#' ? `<a class="btn btn-secondary" href="${item.downloadUrl}" target="_blank" rel="noreferrer">Descargar</a>` : ''}
-        </div>
-      </article>
-    `)
-    .join('');
+
+  const pageSize = 3;
+  let currentPage = 0;
+  const pageCount = Math.max(1, Math.ceil(norms.length / pageSize));
+
+  const renderPage = () => {
+    const currentItems = norms.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+    container.innerHTML = currentItems
+      .map((item) => `
+        <article class="norm-card">
+          <div>
+            <h3>${item.title}</h3>
+            <p>${item.description}</p>
+          </div>
+          <div class="norm-actions">
+            ${item.viewUrl && item.viewUrl !== '#' ? `<a class="btn btn-primary" href="${item.viewUrl}" target="_blank" rel="noreferrer">Ver</a>` : ''}
+            ${item.downloadUrl && item.downloadUrl !== '#' ? `<a class="btn btn-secondary" href="${item.downloadUrl}" target="_blank" rel="noreferrer">Descargar</a>` : ''}
+          </div>
+        </article>
+      `)
+      .join('');
+
+    if (pagination) {
+      const prevButton = pagination.querySelector('.norm-prev');
+      const nextButton = pagination.querySelector('.norm-next');
+      const pageIndicator = pagination.querySelector('.norm-page');
+
+      if (prevButton) prevButton.disabled = currentPage === 0;
+      if (nextButton) nextButton.disabled = currentPage === pageCount - 1;
+      if (pageIndicator) pageIndicator.textContent = `${currentPage + 1}/${pageCount}`;
+    }
+  };
+
+  if (pagination) {
+    const prevButton = pagination.querySelector('.norm-prev');
+    const nextButton = pagination.querySelector('.norm-next');
+
+    if (prevButton) {
+      prevButton.addEventListener('click', () => {
+        currentPage = Math.max(0, currentPage - 1);
+        renderPage();
+      });
+    }
+
+    if (nextButton) {
+      nextButton.addEventListener('click', () => {
+        currentPage = Math.min(pageCount - 1, currentPage + 1);
+        renderPage();
+      });
+    }
+  }
+
+  renderPage();
 }
 
 async function initTrabajos() {
   const jobs = await fetchJson('data/trabajos.json');
   const container = document.getElementById('jobsGrid');
+  const pagination = document.querySelector('.job-pagination');
   if (!container) return;
-  container.innerHTML = jobs
-    .map((job) => `
-      <article class="feature-card">
-        <h3>${job.title}</h3>
-        <p>${job.description}</p>
-        <a class="btn btn-secondary" href="${job.ctaUrl}" target="_blank" rel="noreferrer">${job.ctaLabel}</a>
-      </article>
-    `)
-    .join('');
+
+  const pageSize = 3;
+  let currentPage = 0;
+  const pageCount = Math.max(1, Math.ceil(jobs.length / pageSize));
+
+  const renderPage = () => {
+    const currentJobs = jobs.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+    container.innerHTML = currentJobs
+      .map((job) => `
+        <article class="feature-card">
+          <h3>${job.title}</h3>
+          <p>${job.description}</p>
+          <a class="btn btn-secondary" href="${job.ctaUrl}" target="_blank" rel="noreferrer">${job.ctaLabel}</a>
+        </article>
+      `)
+      .join('');
+
+    if (pagination) {
+      const prevButton = pagination.querySelector('.job-prev');
+      const nextButton = pagination.querySelector('.job-next');
+      const pageIndicator = pagination.querySelector('.job-page');
+
+      if (prevButton) prevButton.disabled = currentPage === 0;
+      if (nextButton) nextButton.disabled = currentPage === pageCount - 1;
+      if (pageIndicator) pageIndicator.textContent = `${currentPage + 1}/${pageCount}`;
+    }
+  };
+
+  if (pagination) {
+    const prevButton = pagination.querySelector('.job-prev');
+    const nextButton = pagination.querySelector('.job-next');
+
+    if (prevButton) {
+      prevButton.addEventListener('click', () => {
+        currentPage = Math.max(0, currentPage - 1);
+        renderPage();
+      });
+    }
+
+    if (nextButton) {
+      nextButton.addEventListener('click', () => {
+        currentPage = Math.min(pageCount - 1, currentPage + 1);
+        renderPage();
+      });
+    }
+  }
+
+  renderPage();
 }
 
 async function initCommands() {
   const commands = await fetchJson('data/comandos.json');
   const container = document.getElementById('commandsGrid');
+  const pagination = document.querySelector('.command-pagination');
   if (!container) return;
-  container.innerHTML = commands
-    .map((cmd) => `
-      <article class="command-card">
-        <h4>${cmd.command}</h4>
-        ${cmd.description ? `<p>${cmd.description}${cmd.example ? `<br>➜ Ejemplo: <strong>${cmd.example}</strong>.` : ''}</p>` : ''}
-      </article>
-    `)
-    .join('');
+
+  const pageSize = 6;
+  let currentPage = 0;
+  const pageCount = Math.max(1, Math.ceil(commands.length / pageSize));
+
+  const renderPage = () => {
+    const currentItems = commands.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+    container.innerHTML = currentItems
+      .map((cmd) => `
+        <article class="command-card">
+          <h4>${cmd.command}</h4>
+          ${cmd.description ? `<p>${cmd.description}${cmd.example ? `<br>➜ Ejemplo: <strong>${cmd.example}</strong>.` : ''}</p>` : ''}
+        </article>
+      `)
+      .join('');
+
+    if (pagination) {
+      const prevButton = pagination.querySelector('.command-prev');
+      const nextButton = pagination.querySelector('.command-next');
+      const pageIndicator = pagination.querySelector('.command-page');
+
+      if (prevButton) prevButton.disabled = currentPage === 0;
+      if (nextButton) nextButton.disabled = currentPage === pageCount - 1;
+      if (pageIndicator) pageIndicator.textContent = `${currentPage + 1}/${pageCount}`;
+    }
+  };
+
+  renderPage();
+
+  if (pagination) {
+    const prevButton = pagination.querySelector('.command-prev');
+    const nextButton = pagination.querySelector('.command-next');
+
+    if (prevButton) {
+      prevButton.addEventListener('click', () => {
+        currentPage = Math.max(0, currentPage - 1);
+        renderPage();
+      });
+    }
+
+    if (nextButton) {
+      nextButton.addEventListener('click', () => {
+        currentPage = Math.min(pageCount - 1, currentPage + 1);
+        renderPage();
+      });
+    }
+  }
 }
 
 async function initStaff() {
@@ -361,11 +483,13 @@ navToggle.addEventListener('click', () => {
   siteNav.classList.toggle('open');
   const expanded = siteNav.classList.contains('open');
   navToggle.setAttribute('aria-expanded', expanded);
+  document.body.classList.toggle('nav-open', expanded);
 });
 
 window.addEventListener('resize', () => {
   if (window.innerWidth > 780) {
     siteNav.classList.remove('open');
+    document.body.classList.remove('nav-open');
   }
 });
 
